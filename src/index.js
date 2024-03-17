@@ -64,13 +64,13 @@ class Bot{
     }
 
 	// Log chat messages
-	chatLog(username, message) {
+	chatLog(username, ...message) {
 		if (!botNames.includes(username)) {
             console.log(`<${username}>`, message);
 
             // Command handling
-            if (msg[0].startsWith('^')) {
-                this.handleCommand(username, msg[0].substring(1));
+            if (message[0].startsWith('^')) {
+                this.handleCommand(username, message[0].substring(1));
             }
         }
 	}
@@ -79,29 +79,30 @@ class Bot{
         this.bot.once('spawn', () => {
             setTimeout(() => {
                 this.bot.chat('/prefix &7&l[&r&#B33BFFP&#A93BFFr&#9E3CFFe&#943CFFf&#8A3CFFi&#803CFFx&#753DFF: &#6B3DFF^&7&l]&r');
-            }, 1000);
+            }, 300);
             setTimeout(() => {
                 this.bot.chat('/nick &#B33BFFF&#A93BFFl&#9E3CFFe&#943CFFa&#8A3CFFm&#803CFFB&#753DFFo&#6B3DFFt');
-            }, 1000);
+            }, 2000);
 
-			this.bot.chat(`&#B234FFF&#A835FFl&#9E37FFe&#9438FFa&#8939FFm&#7F3AFFB&#753CFFo&#6B3DFFt &7- &#B234FFVersion: &f0.0.4-beta &#B234FFBy: &fZenZoya`);
+            this.bot.chat(`/fill 413 78 -320 413 78 -320 minecraft:repeating_command_block{CustomName:'{"text":"FleamBotCore","color":"#B234FF"}}, Auto:1b'}`);
+			this.bot.chat(`&#B234FFF&#A835FFl&#9E37FFe&#9438FFa&#8939FFm&#7F3AFFB&#753CFFo&#6B3DFFt &7- &#B234FFVersion: &f0.1.2-beta &#B234FFBy: &fZenZoya`);
             setInterval(() => {
                 this.bot.chat('&#6B3DFF&oSay &#B234FF^help &#6B3DFF&ofor a list of commands.');
             }, 120 * 1000);
 		});
 
-        this.bot.on('spawn', () => {
-            // Chat Patterns
-            this.bot.addChatPattern('chat_pattern1', /(\w+)§f:\s*(.*)/gm)
-        });
+        // this.bot.on('spawn', () => {
+        //     // Chat Patterns
+        //     this.bot.addChatPattern('chat_pattern1', /(\w+)§f:\s*(.*)/gm)
+        // });
 
 		// Log all chat messages
 		this.bot.on('chat', async (username, message) => {
-			this.chatLog(username, `${message} | no pattern`);
+			this.chatLog(username, message);
         });
-        this.bot.on('chat:chat_pattern1', matches => {
-            this.chatLog(matches[0], matches[1]);
-        });
+        // this.bot.on('chat:chat_pattern1', matches => {
+        //     this.chatLog(matches[0], matches[1]);
+        // });
 
         // Disconnect handling
 		this.bot.on('end', async (reason) => {
@@ -129,7 +130,7 @@ for (let i = 0; i < 1; i++) {
 	// Create a new bot
 	// 5 seconds to the delay for each bot
 	setTimeout(() => {
-		let bot = new Bot(`FleamBot_${i}`, config.server.host, config.server.port, config.server.version);
+		let bot = new Bot(`FleamBot_${i +1}`, config.server.host, config.server.port, config.server.version);
 		bots.push(bot);
 		botNames.push(bot.username);
 	}, 5300 * i);
