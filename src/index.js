@@ -84,7 +84,7 @@ class Bot{
                 this.bot.chat('/nick &#B33BFFF&#A93BFFl&#9E3CFFe&#943CFFa&#8A3CFFm&#803CFFB&#753DFFo&#6B3DFFt');
             }, 2000);
 
-            this.bot.chat(`/fill 413 78 -320 413 78 -320 minecraft:repeating_command_block{CustomName:'{"text":"FleamBotCore","color":"#B234FF"}}, Auto:1b'}`);
+            this.bot.chat(`/fill 413 78 -320 413 78 -320 repeating_command_block{Auto:1b,CustomName:'{"text":"FleamBotCore","color":"#B234FF"}'} replace`);
 			this.bot.chat(`&#B234FFF&#A835FFl&#9E37FFe&#9438FFa&#8939FFm&#7F3AFFB&#753CFFo&#6B3DFFt &7- &#B234FFVersion: &f0.1.2-beta &#B234FFBy: &fZenZoya`);
             setInterval(() => {
                 this.bot.chat('&#6B3DFF&oSay &#B234FF^help &#6B3DFF&ofor a list of commands.');
