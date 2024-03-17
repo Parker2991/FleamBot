@@ -1,12 +1,10 @@
 const mineflayer = require('mineflayer');
-const pvp = require('mineflayer-pvp').plugin;
-const pathfinder = require('mineflayer-pathfinder').pathfinder;
-const armorManager = require('mineflayer-armor-manager');
-const { plugin } = require('mineflayer-auto-eat');
+const nbt = require('prismarine-nbt')
+const mcNamespace = 'minecraft:'
 const fs = require('fs');
 const path = require('path');
 
-const autoEat = plugin;
+let mcData = require('minecraft-data')('1.17.1')
 
 // Load config
 const config = require('./config.json');
@@ -23,27 +21,92 @@ class Bot{
         this.initBot();
     }
 
-	//Log-in as a new bot to the server
-	// let bot = mineflayer.createBot({
-	// 	host: config.server.host,
-	// 	port: config.server.port,
-	// 	username: `${config.client.name}`,
-	// 	version: config.server.version,
-	// 	viewDistance: "tiny",
-	// });
 	initBot() {
         this.bot = mineflayer.createBot({
             "username": this.username,
             "host": this.host,
             "port": this.port,
-            "version": this.version
+            "version": this.version,
+            "viewDistance": "tiny"
         });
 
-		// Load all plugins
-		this.bot.loadPlugin(pvp);
-		this.bot.loadPlugin(autoEat);
-		this.bot.loadPlugin(pathfinder);
-		this.bot.loadPlugin(armorManager);
+        // Core
+        this.bot.core = {
+            size: { from: { x: -8, y: 0, z: -8 }, to: { x: 8, y: 0, z: 8 } },
+        
+            from: { x: null, y: null, z: null },
+            to: { x: null, y: null, z: null },
+        
+            block: { x: null, y: null, z: null },
+        
+            refill () {
+              const refillCommand = `/fill ${this.from.x} ${this.from.y} ${this.from.z} ${this.to.x} ${this.to.y} ${this.to.z} repeating_command_block{CustomName:'""'}`
+              const location = { x: Math.floor(bot.position.x), y: Math.floor(bot.position.y) - 1, z: Math.floor(bot.position.z) }
+              const commandBlockId = mcData?.itemsByName.command_block.id
+        
+              this.bot._client.write('set_creative_slot', {
+                slot: 36,
+                item: {
+                  present: true,
+                  itemId: commandBlockId,
+                  itemCount: 1,
+                  nbtData: nbt.comp({
+                    BlockEntityTag: nbt.comp({
+                      auto: nbt.byte(1),
+                      Command: nbt.string(refillCommand)
+                    })
+                  })
+                }
+              })
+        
+              this.bot._client.write('block_dig', {
+                status: 0,
+                location,
+                face: 1
+              })
+        
+              this.bot._client.write('block_place', {
+                 location,
+                 direction: 1,
+                 hand: 0,
+                 cursorX: 0.5,
+                 cursorY: 0.5,
+                 cursorZ: 0.5,
+                 insideBlock: false
+              })
+            },
+            run (command) {
+              if (!command.startsWith(mcNamespace)) command = command.substring(mcNamespace.length)
+        
+              this.bot._client.write('update_command_block', { location: this.block, command: String(command).substring(0, 32767), mode: 1, flags: 0b100 })
+        
+              this.block.x++
+              if (this.block.x > this.to.x) {
+                this.block.x = this.from.x
+                this.block.z++
+                if (this.block.z > this.to.z) {
+                  this.block.z = this.from.z
+                  this.block.y++
+                  if (this.block.y > this.to.y) {
+                    this.block.x = this.from.x
+                    this.block.y = this.from.y
+                    this.block.z = this.from.z
+                  }
+                }
+              }
+            },
+            reset () {
+              this.from = { x: Math.floor(this.size.from.x + bot.position.x), y: 0, z: Math.floor(this.size.from.z + bot.position.z) }
+              this.to = { x: Math.floor(this.size.to.x + bot.position.x), y: Math.floor(this.size.to.y), z: Math.floor(this.size.to.z + bot.position.z) }
+              this.block = { ...this.from }
+              this.refill()
+            }
+          }
+          this.bot.on('move', oldPos => {
+            this.bot.core.run(`minecraft:setblock ${Math.floor(oldPos.x)} ${Math.floor(oldPos.y - 1)} ${Math.floor(oldPos.z)} minecraft:air replace mincecraft:command:block`) // Clean up after refills
+            this.bot.core.reset()
+          })
+          setInterval(() => bot.core.refill(), 60 * 1000)
 
         // Initialize bot events
         this.initEvents();
@@ -78,8 +141,10 @@ class Bot{
 	initEvents() {
         this.bot.once('spawn', () => {
             setTimeout(() => {
-                this.bot.chat('/prefix &7&l[&r&#B33BFFP&#A93BFFr&#9E3CFFe&#943CFFf&#8A3CFFi&#803CFFx&#753DFF: &#6B3DFF^&7&l]&r');
-            }, 300);
+                this.bot.chat(
+                    '/prefix &7&l[&r&#B33BFFP&#A93BFFr&#9E3CFFe&#943CFFf&#8A3CFFi&#803CFFx&#753DFF: &#6B3DFF^&7&l]&r'
+                );
+            }, 200);
             setTimeout(() => {
                 this.bot.chat('/nick &#B33BFFF&#A93BFFl&#9E3CFFe&#943CFFa&#8A3CFFm&#803CFFB&#753DFFo&#6B3DFFt');
             }, 2000);
@@ -91,18 +156,10 @@ class Bot{
             }, 120 * 1000);
 		});
 
-        // this.bot.on('spawn', () => {
-        //     // Chat Patterns
-        //     this.bot.addChatPattern('chat_pattern1', /(\w+)§f:\s*(.*)/gm)
-        // });
-
 		// Log all chat messages
 		this.bot.on('chat', async (username, message) => {
 			this.chatLog(username, message);
         });
-        // this.bot.on('chat:chat_pattern1', matches => {
-        //     this.chatLog(matches[0], matches[1]);
-        // });
 
         // Disconnect handling
 		this.bot.on('end', async (reason) => {
@@ -130,8 +187,8 @@ for (let i = 0; i < 1; i++) {
 	// Create a new bot
 	// 5 seconds to the delay for each bot
 	setTimeout(() => {
-		let bot = new Bot(`FleamBot_${i +1}`, config.server.host, config.server.port, config.server.version);
+		let bot = new Bot(config.client.name, config.server.host, config.server.port, config.server.version);
 		bots.push(bot);
 		botNames.push(bot.username);
 	}, 5300 * i);
-};
+}
