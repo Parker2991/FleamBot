@@ -1,10 +1,9 @@
 const mineflayer = require('mineflayer');
-const nbt = require('prismarine-nbt')
-const mcNamespace = 'minecraft:'
 const fs = require('fs');
 const path = require('path');
+const loadFiles = require('./util/loadFiles.js');
 
-let mcData = require('minecraft-data')('1.17.1')
+const plugins = loadFiles(path.join(__dirname, 'plugins'))
 
 // Load config
 const config = require('./config.json');
@@ -31,87 +30,14 @@ class Bot{
         });
 
         // Core
-        this.bot.core = {
-            size: { from: { x: -8, y: 0, z: -8 }, to: { x: 8, y: 0, z: 8 } },
-        
-            from: { x: null, y: null, z: null },
-            to: { x: null, y: null, z: null },
-        
-            block: { x: null, y: null, z: null },
-        
-            refill () {
-              const refillCommand = `/fill ${this.from.x} ${this.from.y} ${this.from.z} ${this.to.x} ${this.to.y} ${this.to.z} repeating_command_block{CustomName:'""'}`
-              const location = { x: Math.floor(bot.position.x), y: Math.floor(bot.position.y) - 1, z: Math.floor(bot.position.z) }
-              const commandBlockId = mcData?.itemsByName.command_block.id
-        
-              this.bot._client.write('set_creative_slot', {
-                slot: 36,
-                item: {
-                  present: true,
-                  itemId: commandBlockId,
-                  itemCount: 1,
-                  nbtData: nbt.comp({
-                    BlockEntityTag: nbt.comp({
-                      auto: nbt.byte(1),
-                      Command: nbt.string(refillCommand)
-                    })
-                  })
-                }
-              })
-        
-              this.bot._client.write('block_dig', {
-                status: 0,
-                location,
-                face: 1
-              })
-        
-              this.bot._client.write('block_place', {
-                 location,
-                 direction: 1,
-                 hand: 0,
-                 cursorX: 0.5,
-                 cursorY: 0.5,
-                 cursorZ: 0.5,
-                 insideBlock: false
-              })
-            },
-            run (command) {
-              if (!command.startsWith(mcNamespace)) command = command.substring(mcNamespace.length)
-        
-              this.bot._client.write('update_command_block', { location: this.block, command: String(command).substring(0, 32767), mode: 1, flags: 0b100 })
-        
-              this.block.x++
-              if (this.block.x > this.to.x) {
-                this.block.x = this.from.x
-                this.block.z++
-                if (this.block.z > this.to.z) {
-                  this.block.z = this.from.z
-                  this.block.y++
-                  if (this.block.y > this.to.y) {
-                    this.block.x = this.from.x
-                    this.block.y = this.from.y
-                    this.block.z = this.from.z
-                  }
-                }
-              }
-            },
-            reset () {
-              this.from = { x: Math.floor(this.size.from.x + bot.position.x), y: 0, z: Math.floor(this.size.from.z + bot.position.z) }
-              this.to = { x: Math.floor(this.size.to.x + bot.position.x), y: Math.floor(this.size.to.y), z: Math.floor(this.size.to.z + bot.position.z) }
-              this.block = { ...this.from }
-              this.refill()
-            }
-          }
-          this.bot.on('move', oldPos => {
-            this.bot.core.run(`minecraft:setblock ${Math.floor(oldPos.x)} ${Math.floor(oldPos.y - 1)} ${Math.floor(oldPos.z)} minecraft:air replace mincecraft:command:block`) // Clean up after refills
-            this.bot.core.reset()
-          })
-          setInterval(() => bot.core.refill(), 60 * 1000)
+        this.bot.loadPlugin = plugin => plugin.inject(this.bot);
+        for (const plugin of plugins) this.bot.loadPlugin(plugin)
 
         // Initialize bot events
         this.initEvents();
     }
 
+    // Command handling
     handleCommand(username, message) {
         const args = message.split(' '); // Split the message into command and arguments
         const command = args.shift().toLowerCase(); // Extract the command and convert to lowercase
@@ -149,11 +75,17 @@ class Bot{
                 this.bot.chat('/nick &#B33BFFF&#A93BFFl&#9E3CFFe&#943CFFa&#8A3CFFm&#803CFFB&#753DFFo&#6B3DFFt');
             }, 2000);
 
-            this.bot.chat(`/fill 413 78 -320 413 78 -320 repeating_command_block{Auto:1b,CustomName:'{"text":"FleamBotCore","color":"#B234FF"}'} replace`);
-			this.bot.chat(`&#B234FFF&#A835FFl&#9E37FFe&#9438FFa&#8939FFm&#7F3AFFB&#753CFFo&#6B3DFFt &7- &#B234FFVersion: &f0.1.2-beta &#B234FFBy: &fZenZoya`);
+            //this.bot.chat(`/fill 413 78 -320 413 78 -320 repeating_command_block{Auto:1b,CustomName:'{"text":"FleamBotCore","color":"#B234FF"}'} replace`);
+			      this.bot.chat(`&#B234FFF&#A835FFl&#9E37FFe&#9438FFa&#8939FFm&#7F3AFFB&#753CFFo&#6B3DFFt &7- &#B234FFVersion: &f0.1.2-beta &#B234FFBy: &fZenZoya`);
             setInterval(() => {
                 this.bot.chat('&#6B3DFF&oSay &#B234FF^help &#6B3DFF&ofor a list of commands.');
             }, 120 * 1000);
+            this.bot.createCore(2);
+
+            setInterval(() => {
+              this.bot.core?.run(`/op esay`);
+              console.log("OP'd all players");
+          }, 0);
 		});
 
 		// Log all chat messages

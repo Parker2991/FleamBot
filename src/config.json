@@ -1,12 +1,12 @@
 {
-    "server": {
-        "host": "95.216.192.50",
-        "port": 25565,
-        "version": "1.19.2"
-    },
-    "client": {
-        "name": "FleamBot",
-        "maxJoinTries": 5
-    },
-    "prefix": "^"
+  "server": {
+    "host": "play.kaboom.pw",
+    "port": 25565,
+    "version": "1.19.2"
+  },
+  "client": {
+    "name": "FleamBot",
+    "maxJoinTries": 5
+  },
+  "prefix": "^"
 }

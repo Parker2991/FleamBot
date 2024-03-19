@@ -7,16 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ZenZoya",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "@nxg-org/mineflayer-pathfinder": "^0.0.21",
     "minecraft-data": "^3.63.0",
+    "minecraft-protocol": "^1.47.0",
     "mineflayer": "^4.20.0",
-    "mineflayer-armor-manager": "^1.4.2",
-    "mineflayer-auto-eat": "^3.3.6",
-    "mineflayer-pathfinder": "^2.4.5",
-    "mineflayer-pvp": "^1.3.2",
     "prismarine-nbt": "^2.5.0",
-    "prismarine-viewer": "^1.28.0"
+    "vec3": "^0.1.10"
   }
 }
