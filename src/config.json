@@ -1,12 +1,20 @@
 {
-  "server": {
-    "host": "play.kaboom.pw",
-    "port": 25565,
-    "version": "1.19.2"
+  "prefix": "^",
+  "minecraft": {
+    "enable": true,
+    "username": "FleamBot",
+    "servers": [
+      {
+        "host": "play.kaboom.pw",
+        "port": 25565,
+        "version": "1.20.4"
+      }
+    ]
   },
-  "client": {
-    "name": "FleamBot",
-    "maxJoinTries": 5
+  "discord": {
+    "enable": false,
+    "token": "-------------------",
+    "channelId": "-------------------"
   },
-  "prefix": "^"
+  "logErrors": true
 }
