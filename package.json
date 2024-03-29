@@ -9,10 +9,14 @@
   "author": "ZenZoya",
   "license": "MIT",
   "dependencies": {
+    "const": "^1.0.0",
     "minecraft-data": "^3.63.0",
     "minecraft-protocol": "^1.47.0",
     "mineflayer": "^4.20.0",
+    "prismarine-chat": "^1.10.0",
     "prismarine-nbt": "^2.5.0",
+    "sharp": "^0.33.3",
+    "util": "^0.12.5",
     "vec3": "^0.1.10"
   }
 }
