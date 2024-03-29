@@ -13,6 +13,11 @@
         "host": "chipmunk.land",
         "port": 25565,
         "version": "1.19.2"
+      },
+      {
+        "host": "fyd.icu",
+        "port": 25565,
+        "version": "1.19.2"
       }
     ]
   },
