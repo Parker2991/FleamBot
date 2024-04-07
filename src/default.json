@@ -1,0 +1,20 @@
+{
+  "prefix": "default^",
+  "minecraft": {
+    "enable": true,
+    "username": "FleamBot",
+    "servers": [
+      {
+        "host": "localhost",
+        "port": 25565,
+        "version": "1.19.2"
+      },
+    ]
+  },
+  "discord": {
+    "enable": false,
+    "token": "discord token here",
+    "channelId": "discord channel id here"
+  },
+  "logErrors": true
+}
