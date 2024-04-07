@@ -1,5 +1,14 @@
+const fs = require('fs');
+const path = require('path');
+if (!fs.existsSync("config.json")) {
+console.log('config does not exist, copying from default config');
+fs.copyFileSync(
+  path.join(__dirname, "../default.json"),
+  path.join(__dirname, "../config.json"),
+)
+}
+const config = require("../config.json"); // load config before loading the bot file since it loads the config with it
 const { createBot } = require('./bot');
-const config = require('../config.json');
 const util = require('util');
 
 const rancars = generateRandomString(6);
